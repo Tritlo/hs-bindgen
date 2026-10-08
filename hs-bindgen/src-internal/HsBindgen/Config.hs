@@ -17,6 +17,7 @@ import HsBindgen.Backend.Category
 import HsBindgen.BindingSpec
 import HsBindgen.Config.ClangArgs
 import HsBindgen.Config.Internal
+import HsBindgen.Config.Naming
 import HsBindgen.Frontend.Pass.Parse.IsPass (EmptyMacros)
 import HsBindgen.Frontend.Pass.Select.IsPass
 import HsBindgen.Frontend.Predicate
@@ -43,10 +44,11 @@ data Config_ path = Config {
   , selectionPredicate  :: Boolean SelectionPredicate
   , programSlicing      :: ProgramSlicing
   , fieldNamingStrategy :: FieldNamingStrategy
+  , namingModifiers     :: NamingModifiers
   , emptyMacros         :: EmptyMacros
 
   }
-  deriving stock (Eq, Show, Generic)
+  deriving stock (Show, Generic)
   deriving stock (Functor, Foldable, Traversable)
   deriving anyclass (Default)
 
@@ -67,6 +69,7 @@ toBindgenConfig config uniqueId baseModuleName choice =
           selectionPredicate  = config.selectionPredicate
         , programSlicing      = config.programSlicing
         , fieldNamingStrategy = config.fieldNamingStrategy
+        , namingModifiers     = config.namingModifiers
         , emptyMacros         = config.emptyMacros
         , doxygenConfig       = defaultConfig
         }

@@ -4,7 +4,16 @@
 
 ### Breaking changes
 
+* Remove the `Eq` instances for `Config_` and `FrontendConfig`. Naming modifiers
+  contain functions. Remove configuration equality checks, or compare the
+  non-function fields that your application needs.
+
 ### New features
+
+* Add public `NamingModifiers` for type, function, constructor, field, and enum
+  constant names. Modifiers run before identifier validation and collision
+  detection. Defaults preserve the current output. Add CLI prefix, case, and
+  word-replacement options for these names.
 
 ### Minor changes
 

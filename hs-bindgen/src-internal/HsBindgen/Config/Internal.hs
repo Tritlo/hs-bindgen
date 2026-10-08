@@ -16,6 +16,7 @@ module HsBindgen.Config.Internal (
 import HsBindgen.Backend.Category
 import HsBindgen.BindingSpec
 import HsBindgen.Config.ClangArgs
+import HsBindgen.Config.Naming
 import HsBindgen.Config.Prelims
 import HsBindgen.Frontend.Pass.Parse.IsPass (EmptyMacros)
 import HsBindgen.Frontend.Pass.Select.IsPass (ProgramSlicing)
@@ -81,16 +82,18 @@ data FrontendConfig = FrontendConfig {
       selectionPredicate  :: Boolean SelectionPredicate
     , programSlicing      :: ProgramSlicing
     , fieldNamingStrategy :: FieldNamingStrategy
+    , namingModifiers     :: NamingModifiers
     , emptyMacros         :: EmptyMacros
     , doxygenConfig       :: Doxygen.Config
     }
-  deriving stock (Show, Eq, Generic)
+  deriving stock (Show, Generic)
 
 instance Default FrontendConfig where
   def = FrontendConfig {
       selectionPredicate  = def
     , programSlicing      = def
     , fieldNamingStrategy = def
+    , namingModifiers     = def
     , emptyMacros         = def
     , doxygenConfig       = Doxygen.defaultConfig
     }

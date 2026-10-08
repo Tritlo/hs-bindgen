@@ -9,9 +9,7 @@ import Clang.Version
 
 import HsBindgen.Boot
 import HsBindgen.Cache
-import HsBindgen.Config (Config_ (..))
 import HsBindgen.Config.Internal
-import HsBindgen.Config.Naming
 import HsBindgen.Errors
 import HsBindgen.Frontend
 import HsBindgen.Frontend.Pass.Parse.IsPass
@@ -37,65 +35,6 @@ tests getTestResources = testGroup "Test.HsBindgen.Unit.Frontend" [
           testParseSourceOrder getTestResources
         , testParseReparseInvocations getTestResources
         ]
-    , testNamingStrategy
-    ]
-
--- | Check naming rules and structural configuration equality.
-testNamingStrategy :: TestTree
-testNamingStrategy =
-  testGroup
-    "NamingStrategy"
-    [ testCase "PreserveCase keeps words and adds the prefix" $
-        applyNameTransform
-          def
-            { prefix = "c_"
-            , wordReplacements = [("duckdb", "DuckDB")]
-            }
-          "duckdb_open"
-          @?= "c_duckdb_open"
-    , testCase "PascalCase runs before prefixing" $
-        applyNameTransform
-          def
-            { prefix = "raw_"
-            , nameCase = PascalCase
-            , wordReplacements = [("DUCKDB", "DuckDB")]
-            }
-          "duckdb_column_count"
-          @?= "raw_DuckDBColumnCount"
-    , testCase "CamelCase preserves the rest of an acronym" $
-        applyNameTransform
-          def
-            { nameCase = CamelCase
-            , wordReplacements = [("DuCkDb", "DuckDB")]
-            }
-          "DUCKDB_column_count"
-          @?= "duckDBColumnCount"
-    , testCase "The first case-insensitive word replacement wins" $
-        applyNameTransform
-          def
-            { nameCase = PascalCase
-            , wordReplacements = [("DuCkDb", "DuckDB"), ("duckdb", "Other")]
-            }
-          "DUCKDB_database"
-          @?= "DuckDBDatabase"
-    , testCase "Case conversion retains leading underscores" $
-        applyNameTransform
-          def{nameCase = PascalCase}
-          "_widget__state"
-          @?= "_WidgetState"
-    , testCase "Configuration equality includes naming rules" $ do
-        let strategy :: NamingStrategy
-            strategy = def{functionNames = def{prefix = "c_"}}
-            config :: Config_ FilePath
-            config = def
-            renamedConfig = config & #namingStrategy .~ strategy
-            frontend :: FrontendConfig
-            frontend = def
-        assertBool "changed public naming strategy" (config /= renamedConfig)
-        renamedConfig @?= (config & #namingStrategy % #functionNames % #prefix .~ "c_")
-        assertBool
-          "changed frontend naming strategy"
-          (frontend /= (frontend & #namingStrategy .~ strategy))
     ]
 
 {-------------------------------------------------------------------------------

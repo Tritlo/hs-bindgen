@@ -331,7 +331,7 @@ modifyFirstLetter onInvalidFirst =
         adjustForRule :: Char -> Char
         (matchesRule, adjustForRule) =
             case ruleset of
-              SNameRuleSetVar   -> (\c -> c == '_' || (Char.isLetter c && not (Char.isUpper c)), Char.toLower)
+              SNameRuleSetVar   -> (not . Char.isUpper , Char.toLower)
               SNameRuleSetOther -> (      Char.isUpper , Char.toUpper)
 
         unusable :: Char -> Bool

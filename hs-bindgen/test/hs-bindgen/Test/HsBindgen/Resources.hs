@@ -141,7 +141,7 @@ getTestThBackendConfig testName =
       }
 
 -- | Apply TH-specific category choice to an existing 'BackendConfig',
--- Preserve all other backend settings.
+-- preserving all other settings (e.g. 'fieldNamingStrategy').
 applyTestThCategoryChoice :: BackendConfig -> BackendConfig
 applyTestThCategoryChoice cfg = cfg { categoryChoice = testThCategoryChoice }
 

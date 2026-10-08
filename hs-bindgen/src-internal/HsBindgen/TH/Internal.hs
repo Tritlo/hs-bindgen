@@ -32,7 +32,6 @@ import HsBindgen.Backend.SHs.AST qualified as SHs
 import HsBindgen.Backend.TH.Translation
 import HsBindgen.Config
 import HsBindgen.Config.Internal
-import HsBindgen.Config.Naming
 import HsBindgen.Errors
 import HsBindgen.Guasi
 import HsBindgen.Imports
@@ -186,7 +185,7 @@ withHsBindgenMacroLang mkMacroLang config configTH hashIncludes = do
           uncheckedRootDirectives
           artefact
 
-    let fns  = bindgenConfig.frontend.namingStrategy.fieldNamingStrategy
+    let fns  = bindgenConfig.frontend.fieldNamingStrategy
         exts = uncurry (getExtensions fns) decls
     checkLanguageExtensions exts
     -- Reverse SDecl order to counteract GHC reversing TH type/class

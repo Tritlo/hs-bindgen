@@ -2,7 +2,6 @@
 module Test.HsBindgen.Golden.Declarations (testCases) where
 
 import HsBindgen.Config.Internal
-import HsBindgen.Config.Naming
 import HsBindgen.Frontend.Analysis.DeclIndex (UnusableReason (..))
 import HsBindgen.Frontend.Pass.MangleNames.Error
 import HsBindgen.Frontend.Predicate
@@ -69,7 +68,7 @@ test_duplicate_field_name_omit :: TestCase
 test_duplicate_field_name_omit =
     defaultTest "declarations/duplicate_field_name_omit"
       & #onFrontend      .~ (\cfg -> cfg
-            & #namingStrategy % #fieldNamingStrategy .~ OmitFieldPrefixes
+            & #fieldNamingStrategy .~ OmitFieldPrefixes
           )
       & #tracePredicate  .~ multiTracePredicate declsWithMsgs (\case
             MatchUnusable name (UnusableMangleNamesFailure (MangleNamesCollisionError DetectClashesDuplicateFieldName{})) ->
@@ -100,7 +99,7 @@ test_field_name_reuse_omit :: TestCase
 test_field_name_reuse_omit =
     defaultTest "declarations/field_name_reuse_omit"
       & #onFrontend .~ (\cfg -> cfg
-            & #namingStrategy % #fieldNamingStrategy .~ OmitFieldPrefixes
+            & #fieldNamingStrategy .~ OmitFieldPrefixes
           )
 
 -- This tests https://github.com/well-typed/hs-bindgen/issues/1373 and

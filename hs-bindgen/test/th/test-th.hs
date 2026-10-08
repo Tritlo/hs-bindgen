@@ -94,7 +94,7 @@ test01 = testGroup "test_01"
         s' @?= s
 
     , testCase "function" $ do
-        res <- Test01.my_fma 2 3 5
+        res <- Test01.c_my_fma 2 3 5
         res @?= 11
 
     , testCase "flam" $ do

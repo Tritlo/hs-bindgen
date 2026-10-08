@@ -37,8 +37,6 @@ import Data.Char qualified as Char
 import Data.Default (Default (..))
 import Data.Either (partitionEithers)
 import Data.Maybe (catMaybes)
-import Data.Text (Text)
-import Data.Text qualified as Text
 import Options.Applicative
 import Options.Applicative.Extra (helperWith)
 import System.IO (stderr)
@@ -49,7 +47,6 @@ import HsBindgen.BindingSpec
 import HsBindgen.Config
 import HsBindgen.Config.ClangArgs
 import HsBindgen.Config.Internal
-import HsBindgen.Config.Naming
 import HsBindgen.Frontend.Pass.Parse.IsPass (EmptyMacros (..))
 import HsBindgen.Frontend.Pass.Select.IsPass
 import HsBindgen.Frontend.Predicate
@@ -242,50 +239,8 @@ parseConfig = Config
     <*> parseBindingSpec
     <*> parseSelectionPredicate
     <*> parseProgramSlicing
-    <*> parseNamingStrategy
+    <*> parseFieldNamingStrategy
     <*> parseEmptyMacros
-
--- | Parse portable naming transformations for CLI generation.
-parseNamingStrategy :: Parser NamingStrategy
-parseNamingStrategy = do
-    fieldPrefixes <- parseFieldNamingStrategy
-    typeCase <- parseNameCase "type-name-case"
-    functionPrefix <- strOption $ long "function-name-prefix" <> metavar "TEXT" <> value ""
-        <> help "Prefix generated function names"
-    constructorPrefix <- strOption $ long "constructor-name-prefix" <> metavar "TEXT" <> value ""
-        <> help "Prefix generated constructor names"
-    fieldCase <- parseNameCase "field-name-case"
-    enumCase <- parseNameCase "enum-name-case"
-    words' <- many $ option (eitherReader parseWord) $
-        long "name-word" <> metavar "CWORD=HSWORD"
-        <> help "Replace a word during naming case conversion (case-insensitive C word)"
-    pure NamingStrategy {
-        fieldNamingStrategy = fieldPrefixes
-      , typeNames = def { nameCase = typeCase, wordReplacements = words' }
-      , functionNames = def { prefix = functionPrefix }
-      , constructorNames = def { prefix = constructorPrefix }
-      , fieldNames = def { nameCase = fieldCase, wordReplacements = words' }
-      , enumConstantNames = def { nameCase = enumCase, wordReplacements = words' }
-      }
-  where
-    parseWord :: String -> Either String (Text, Text)
-    parseWord input = case break (== '=') input of
-      (word, '=' : replacement) | not (null word) && not (null replacement) ->
-        Right (Text.pack word, Text.pack replacement)
-      _otherwise -> Left "Expected CWORD=HSWORD with non-empty words"
-
--- | Parse the case option for one name category.
-parseNameCase :: String -> Parser NameCase
-parseNameCase flagName = option (eitherReader parseCase) $
-    long flagName <> metavar "preserve|pascal|camel" <> value PreserveCase
-      <> help "Convert underscore-separated names (default: preserve)"
-  where
-    parseCase :: String -> Either String NameCase
-    parseCase input = case input of
-      "preserve" -> Right PreserveCase
-      "pascal" -> Right PascalCase
-      "camel" -> Right CamelCase
-      _otherwise -> Left "Expected preserve, pascal, or camel"
 
 {-------------------------------------------------------------------------------
   Binding specifications

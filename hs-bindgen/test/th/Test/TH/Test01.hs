@@ -26,5 +26,9 @@ let cfg :: Config
       & #clang % #extraIncludeDirs .~ [PkgDir ("test-artefacts" </> "headers")]
     cfgTh :: ConfigTH
     cfgTh = def
+      & #categoryChoice .~ useSafeCategory {
+          cSafe = IncludeTermCategory $ RenameTerm $ \name ->
+            if name == "my_fma" then "c_" <> name else name
+          }
  in withHsBindgen cfg cfgTh $
       hashInclude "test_01.h"

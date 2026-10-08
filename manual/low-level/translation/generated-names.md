@@ -9,62 +9,34 @@ Haskell name will be, and also is less likely to result in name clashes.
 
 ## Configuring names
 
-`NamingStrategy` configures type, function, constructor, field, and enum constant
-names. Import it from `HsBindgen.Naming` or `HsBindgen.TH`. Each name category has
-a `NameTransform`. A transform contains a `prefix`, a `nameCase`, and
-`wordReplacements`. The default transform has an empty prefix, `PreserveCase`,
-and no word replacements. All naming configuration types have `Eq` and `Show`
-instances.
+The frontend uses the fixed `mangleCandidateDefault` configuration of
+`MangleCandidate`. Use prescriptive binding specifications to set exact type
+names.
 
-Set `namingStrategy` in the generation configuration. For example:
+In Template Haskell mode, use `RenameTerm` to rename exported term bindings in
+one category. For example, prefix safe DuckDB functions with `c_`:
 
 ```haskell
-cfg = def {
-    namingStrategy = def {
-        functionNames = def { prefix = "c_" }
-      , typeNames = def {
-            nameCase = PascalCase
-          , wordReplacements = [("duckdb", "DuckDB")]
-          }
+import HsBindgen.TH
+
+cfgTh :: ConfigTH
+cfgTh = def {
+    categoryChoice = useSafeCategory {
+        cSafe = IncludeTermCategory (RenameTerm ("c_" <>))
       }
   }
 ```
 
-This strategy changes `duckdb_open` to `c_duckdb_open` and `duckdb_connection`
-to `DuckDBConnection`. It does not change the C symbols. The example requires
-`OverloadedStrings`.
+The example requires `OverloadedStrings`. Pass `cfgTh` as the second argument
+to `withHsBindgen`. It changes `duckdb_open` to `c_duckdb_open` without changing
+the C symbol. Types, constructors, and fields belong to `CType`, so this rule
+leaves their names unchanged.
 
-Type, function, and enum rules receive C name candidates. Constructor rules
-receive the generated Haskell type name. Field rules receive the candidate
-after `namingStrategy.fieldNamingStrategy` applies its prefix rule. Auxiliary
-type names use the transformed parent type name. Explicit type names in
-prescriptive binding specifications take precedence over `typeNames`.
-
-Each transform applies case conversion before the prefix. `PreserveCase`
-retains the candidate and ignores word replacements. `PascalCase` and
-`CamelCase` split the candidate at underscores. They retain leading underscores
-and remove underscores between words. Word replacement ignores case in both the
-candidate word and the configured key. The first matching replacement wins.
-For example, `("DUCKDB", "DuckDB")` also matches the C word `duckdb`.
-
-Naming rules run before identifier validation and collision detection. The
-existing rules repair invalid candidates. A collision can exclude a declaration.
-Name changes also apply to references in signatures and generated instances.
-
-The CLI provides a subset of these transformations:
-
-| Option | Transformation |
-| --- | --- |
-| `--function-name-prefix TEXT` | Add a function prefix |
-| `--constructor-name-prefix TEXT` | Add a constructor prefix |
-| `--type-name-case preserve\|pascal\|camel` | Convert type name words |
-| `--field-name-case preserve\|pascal\|camel` | Convert field name words |
-| `--enum-name-case preserve\|pascal\|camel` | Convert enum name words |
-| `--name-word CWORD=HSWORD` | Replace a word during case conversion |
-
-For example, `--type-name-case pascal --name-word duckdb=DuckDB` changes
-`duckdb_connection` to `DuckDBConnection`. `preserve` applies no word replacements.
-The public Haskell API can set these rules separately for each name category.
+`RenameTerm` runs after frontend identifier validation and collision detection.
+Supply valid Haskell names and avoid collisions with other exported names.
+These renamed names are not validated again; see
+[issue #1928](https://github.com/well-typed/hs-bindgen/issues/1928).
+The fixed `c_` prefix meets these requirements for DuckDB function names.
 
 ## Name candidates
 
@@ -112,17 +84,8 @@ data Triple = Triple {
 Instead of using a prefix to make field labels globally unique, we can take
 advantage of [`DuplicateRecordFields`][ghc:guide:duplicate-record-fields] in the
 generated code. This behaviour can be enabled in the command line client using
-`--omit-field-prefixes`. When using Template Haskell, set
-`namingStrategy.fieldNamingStrategy` to `OmitFieldPrefixes`:
-
-```haskell
-cfg = def {
-    namingStrategy = def { fieldNamingStrategy = OmitFieldPrefixes }
-  }
-```
-
-For an existing configuration, use
-`#namingStrategy % #fieldNamingStrategy .~ OmitFieldPrefixes` with optics.
+`--omit-field-prefixes`. When using Template Haskell, `fieldNamingStrategy` can
+be configured to be `OmitFieldPrefixes`.
 
 For the `struct triple` above, this will result in very short field labels:
 

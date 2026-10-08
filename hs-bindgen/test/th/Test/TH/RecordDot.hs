@@ -37,8 +37,8 @@ import HsBindgen.TH
 
 let cfg :: Config
     cfg = def
-      & #clang % #extraIncludeDirs             .~ [PkgDir ("test-artefacts" </> "headers")]
-      & #namingStrategy % #fieldNamingStrategy .~ OmitFieldPrefixes
+      & #clang % #extraIncludeDirs .~ [PkgDir ("test-artefacts" </> "headers")]
+      & #fieldNamingStrategy       .~ OmitFieldPrefixes
     cfgTh :: ConfigTH
     cfgTh = def
  in withHsBindgen cfg cfgTh $

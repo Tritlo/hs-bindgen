@@ -39,11 +39,6 @@ module HsBindgen.TH (
     -- ** Fields
   , Config.FieldNamingStrategy(..)
 
-    -- ** Names
-  , Naming.NamingStrategy(..)
-  , Naming.NameTransform(..)
-  , Naming.NameCase(..)
-
     -- ** Macros
   , Parse.EmptyMacros(..)
 
@@ -83,7 +78,6 @@ import HsBindgen.Backend.Category qualified as Category
 import HsBindgen.BindingSpec qualified as BindingSpec
 import HsBindgen.Config qualified as Config
 import HsBindgen.Config.ClangArgs qualified as ClangArgs
-import HsBindgen.Config.Naming qualified as Naming
 import HsBindgen.Frontend.Pass.Parse.IsPass qualified as Parse
 import HsBindgen.Frontend.Pass.Select.IsPass qualified as Select
 import HsBindgen.Frontend.Predicate qualified as Predicate

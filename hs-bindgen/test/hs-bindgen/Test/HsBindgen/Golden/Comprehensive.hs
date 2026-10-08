@@ -9,6 +9,7 @@
 module Test.HsBindgen.Golden.Comprehensive (testCases) where
 
 import HsBindgen.Config.Internal
+import HsBindgen.Config.Naming
 import HsBindgen.Doxygen (DoxygenMsg (..))
 import HsBindgen.Imports
 import HsBindgen.IR.C qualified as C
@@ -31,7 +32,7 @@ testCases = map omitFieldPrefixes [
   where
     omitFieldPrefixes :: TestCase -> TestCase
     omitFieldPrefixes =
-      #onFrontend .~ ( #fieldNamingStrategy .~ OmitFieldPrefixes )
+      #onFrontend .~ ( #namingStrategy % #fieldNamingStrategy .~ OmitFieldPrefixes )
 
 {-------------------------------------------------------------------------------
   Individual test definitions

@@ -63,6 +63,7 @@ import HsBindgen.BindingSpec.Gen
 import HsBindgen.Boot
 import HsBindgen.Clang
 import HsBindgen.Config.Internal
+import HsBindgen.Config.Naming
 import HsBindgen.Errors (throwPure_TODO)
 import HsBindgen.Frontend
 import HsBindgen.Frontend.Analysis.DeclIndex (DeclIndex)
@@ -235,7 +236,7 @@ getBindings mrc = do
     tags   <- getExportTags
     when (all nullDecls decls) $ EmitTrace $ NoBindingsSingleModule name
     config <- getConfig
-    let fns = config.frontend.fieldNamingStrategy
+    let fns = config.frontend.namingStrategy.fieldNamingStrategy
     pure $ render $
       translateModuleSingle fns mrc dirs name (resolveExports tags) decls
 
@@ -286,7 +287,7 @@ getBindingsMultiple mrc = do
     when (all nullDecls decls) $
       EmitTrace $ NoBindingsMultipleModules name
     config <- getConfig
-    let fns = config.frontend.fieldNamingStrategy
+    let fns = config.frontend.namingStrategy.fieldNamingStrategy
     pure $ fmap render <$>
       translateModuleMultiple fns mrc dirs name (resolveExports tags) decls
 

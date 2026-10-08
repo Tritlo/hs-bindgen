@@ -5,6 +5,7 @@ import System.FilePath ((<.>), (</>))
 
 import HsBindgen.Config.ClangArgs
 import HsBindgen.Config.Internal
+import HsBindgen.Config.Naming
 import HsBindgen.Frontend.Analysis.DeclIndex (UnusableReason (..))
 import HsBindgen.Frontend.Pass.MangleNames.Error
 import HsBindgen.Frontend.Pass.Parse.Msg
@@ -202,7 +203,7 @@ test_anonymous_edge_cases_multi_nesting =
 test_anonymous_edge_cases_multi_nesting_omit_field_prefixes :: TestCase
 test_anonymous_edge_cases_multi_nesting_omit_field_prefixes =
     testVariant "types/anonymous/edge-cases/multi_nesting" Nothing "omit_field_prefixes"
-      & #onFrontend .~ ( #fieldNamingStrategy .~ OmitFieldPrefixes )
+      & #onFrontend .~ ( #namingStrategy % #fieldNamingStrategy .~ OmitFieldPrefixes )
 
 -- | Test that indirect fields are reparsed
 test_anonymous_edge_cases_reparse :: TestCase
@@ -323,7 +324,7 @@ test_structs_bitfields =
 test_structs_omit_field_prefixes :: TestCase
 test_structs_omit_field_prefixes =
     testVariant "types/structs/simple_structs" Nothing "omit_field_prefixes"
-      & #onFrontend .~ ( #fieldNamingStrategy .~ OmitFieldPrefixes )
+      & #onFrontend .~ ( #namingStrategy % #fieldNamingStrategy .~ OmitFieldPrefixes )
 
 test_structs_post_qualified :: TestCase
 test_structs_post_qualified =

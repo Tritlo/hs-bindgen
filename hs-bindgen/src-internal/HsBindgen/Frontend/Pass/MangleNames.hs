@@ -65,11 +65,10 @@ import HsBindgen.Util.Tracer (withCallStack)
 
 mangleNames ::
      forall l. (HasCallStack, Macro.HasTypes l)
-  => NamingModifiers
-  -> FieldNamingStrategy
+  => NamingStrategy
   -> C.TranslationUnit l ResolveBindingSpecs
   -> (C.TranslationUnit l MangleNames, [AnnMsg MangleNames])
-mangleNames modifiers fieldNaming unit = (
+mangleNames strategy unit = (
          C.TranslationUnit{
            decls        = decls3
          , includeGraph = unit.includeGraph
@@ -85,6 +84,9 @@ mangleNames modifiers fieldNaming unit = (
         ]
     )
   where
+    fieldNaming :: FieldNamingStrategy
+    fieldNaming = strategy.fieldNamingStrategy
+
     typedefAnalysis :: TypedefAnalysis.TypedefAnalysis
     typedefAnalysis = TypedefAnalysis.fromDecls unit.meta.declUseGraph unit.decls
 
@@ -99,7 +101,7 @@ mangleNames modifiers fieldNaming unit = (
     failures1   :: [MangleNamesFailure]
     msgs1       :: [AnnMsg MangleNames]
     (declsC, squashes, nameMap, nameMapDups, failures1, msgs1) =
-      createNames typedefAnalysis mangleCandidateConfig modifiers fieldNaming unit.decls
+      createNames typedefAnalysis mangleCandidateConfig strategy unit.decls
 
     -- Traversal 2: detect clashes among all names.
     registry  :: NameRegistry

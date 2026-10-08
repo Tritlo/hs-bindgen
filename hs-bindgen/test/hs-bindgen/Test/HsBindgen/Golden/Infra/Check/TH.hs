@@ -25,6 +25,7 @@ import HsBindgen.Backend.Hs.Haddock.Documentation qualified as HsDoc
 import HsBindgen.Backend.HsModule.Pretty.Comment
 import HsBindgen.Config
 import HsBindgen.Config.Internal
+import HsBindgen.Config.Naming
 import HsBindgen.Guasi
 import HsBindgen.Imports
 import HsBindgen.Language.Haskell qualified as Hs
@@ -54,7 +55,7 @@ check getTestResources test =
             ((,) <$> getDependencies <*> ((,) <$> RootDirectives <*> FinalDecls))
 
         let fns :: FieldNamingStrategy
-            fns = (.fieldNamingStrategy) $ getTestFrontendConfig test
+            fns = (.namingStrategy.fieldNamingStrategy) $ getTestFrontendConfig test
             thDecls :: Qu [TH.Dec]
             thDecls = uncurry (getThDecls fns deps dirs) $ Foldable.fold decls
 

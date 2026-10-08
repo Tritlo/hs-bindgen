@@ -66,12 +66,12 @@ test_naming_modifiers :: TestCase
 test_naming_modifiers =
     defaultTest "edge-cases/naming_modifiers"
       & #onFrontend .~ (\cfg -> cfg
-          & #namingModifiers .~ NamingModifiers {
-              typeNameModifier = ("Named_" <>)
-            , functionNameModifier = ("ffi_" <>)
-            , constructorNameModifier = ("Mk_" <>)
-            , fieldNameModifier = ("field_" <>)
-            , enumConstantNameModifier = ("Value_" <>)
+          & #namingStrategy .~ def {
+              typeNames = def{prefix = "Named_"}
+            , functionNames = def{prefix = "ffi_"}
+            , constructorNames = def{prefix = "Mk_"}
+            , fieldNames = def{prefix = "field_"}
+            , enumConstantNames = def{prefix = "Value_"}
             }
           )
 
@@ -123,7 +123,7 @@ test_duplicate_record_field :: TestCase
 test_duplicate_record_field =
     defaultTest "edge-cases/duplicate_record_field"
       & #onFrontend .~ (\cfg -> cfg
-            & #fieldNamingStrategy .~ OmitFieldPrefixes
+            & #namingStrategy % #fieldNamingStrategy .~ OmitFieldPrefixes
           )
 
 test_headers :: TestCase

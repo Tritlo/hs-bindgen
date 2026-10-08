@@ -4,16 +4,21 @@
 
 ### Breaking changes
 
-* Remove the `Eq` instances for `Config_` and `FrontendConfig`. Naming modifiers
-  contain functions. Remove configuration equality checks, or compare the
-  non-function fields that your application needs.
+* Move `fieldNamingStrategy` in `Config_` and `FrontendConfig` under
+  `namingStrategy`. Replace `#fieldNamingStrategy` with
+  `#namingStrategy % #fieldNamingStrategy`, or set
+  `config.namingStrategy.fieldNamingStrategy`. Both configurations retain
+  their `Eq` and `Show` instances.
 
 ### New features
 
-* Add public `NamingModifiers` for type, function, constructor, field, and enum
-  constant names. Modifiers run before identifier validation and collision
-  detection. Defaults preserve the current output. Add CLI prefix, case, and
-  word-replacement options for these names.
+* Add public `NamingStrategy`, `NameTransform`, and `NameCase` for type,
+  function, constructor, field, and enum constant names. Each transform selects
+  case conversion, word replacements, and a prefix. Apply case conversion before
+  the prefix. Apply word replacements without case distinctions and use the
+  first matching replacement. Naming rules run before identifier validation and
+  collision detection. Defaults preserve the current output. Add CLI prefix,
+  case, and word-replacement options for these names.
 
 ### Minor changes
 

@@ -43,12 +43,11 @@ data Config_ path = Config {
     -- * Frontend
   , selectionPredicate  :: Boolean SelectionPredicate
   , programSlicing      :: ProgramSlicing
-  , fieldNamingStrategy :: FieldNamingStrategy
-  , namingModifiers     :: NamingModifiers
+  , namingStrategy      :: NamingStrategy
   , emptyMacros         :: EmptyMacros
 
   }
-  deriving stock (Show, Generic)
+  deriving stock (Eq, Show, Generic)
   deriving stock (Functor, Foldable, Traversable)
   deriving anyclass (Default)
 
@@ -68,8 +67,7 @@ toBindgenConfig config uniqueId baseModuleName choice =
     , frontend = FrontendConfig {
           selectionPredicate  = config.selectionPredicate
         , programSlicing      = config.programSlicing
-        , fieldNamingStrategy = config.fieldNamingStrategy
-        , namingModifiers     = config.namingModifiers
+        , namingStrategy      = config.namingStrategy
         , emptyMacros         = config.emptyMacros
         , doxygenConfig       = defaultConfig
         }

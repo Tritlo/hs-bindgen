@@ -81,19 +81,17 @@ instance Default BootConfig where
 data FrontendConfig = FrontendConfig {
       selectionPredicate  :: Boolean SelectionPredicate
     , programSlicing      :: ProgramSlicing
-    , fieldNamingStrategy :: FieldNamingStrategy
-    , namingModifiers     :: NamingModifiers
+    , namingStrategy      :: NamingStrategy
     , emptyMacros         :: EmptyMacros
     , doxygenConfig       :: Doxygen.Config
     }
-  deriving stock (Show, Generic)
+  deriving stock (Eq, Show, Generic)
 
 instance Default FrontendConfig where
   def = FrontendConfig {
       selectionPredicate  = def
     , programSlicing      = def
-    , fieldNamingStrategy = def
-    , namingModifiers     = def
+    , namingStrategy      = def
     , emptyMacros         = def
     , doxygenConfig       = Doxygen.defaultConfig
     }

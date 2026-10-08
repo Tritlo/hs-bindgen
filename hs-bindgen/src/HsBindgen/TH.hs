@@ -40,7 +40,9 @@ module HsBindgen.TH (
   , Config.FieldNamingStrategy(..)
 
     -- ** Names
-  , Naming.NamingModifiers(..)
+  , Naming.NamingStrategy(..)
+  , Naming.NameTransform(..)
+  , Naming.NameCase(..)
 
     -- ** Macros
   , Parse.EmptyMacros(..)

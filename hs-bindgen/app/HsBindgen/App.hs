@@ -242,13 +242,13 @@ parseConfig = Config
     <*> parseBindingSpec
     <*> parseSelectionPredicate
     <*> parseProgramSlicing
-    <*> parseFieldNamingStrategy
-    <*> parseNamingModifiers
+    <*> parseNamingStrategy
     <*> parseEmptyMacros
 
 -- | Parse portable naming transformations for CLI generation.
-parseNamingModifiers :: Parser NamingModifiers
-parseNamingModifiers = do
+parseNamingStrategy :: Parser NamingStrategy
+parseNamingStrategy = do
+    fieldPrefixes <- parseFieldNamingStrategy
     typeCase <- parseNameCase "type-name-case"
     functionPrefix <- strOption $ long "function-name-prefix" <> metavar "TEXT" <> value ""
         <> help "Prefix generated function names"
@@ -259,22 +259,20 @@ parseNamingModifiers = do
     words' <- many $ option (eitherReader parseWord) $
         long "name-word" <> metavar "CWORD=HSWORD"
         <> help "Replace a word during naming case conversion (case-insensitive C word)"
-    pure NamingModifiers {
-        typeNameModifier = convertName typeCase words'
-      , functionNameModifier = (functionPrefix <>)
-      , constructorNameModifier = (constructorPrefix <>)
-      , fieldNameModifier = convertName fieldCase words'
-      , enumConstantNameModifier = convertName enumCase words'
+    pure NamingStrategy {
+        fieldNamingStrategy = fieldPrefixes
+      , typeNames = def { nameCase = typeCase, wordReplacements = words' }
+      , functionNames = def { prefix = functionPrefix }
+      , constructorNames = def { prefix = constructorPrefix }
+      , fieldNames = def { nameCase = fieldCase, wordReplacements = words' }
+      , enumConstantNames = def { nameCase = enumCase, wordReplacements = words' }
       }
   where
     parseWord :: String -> Either String (Text, Text)
     parseWord input = case break (== '=') input of
       (word, '=' : replacement) | not (null word) && not (null replacement) ->
-        Right (Text.toCaseFold (Text.pack word), Text.pack replacement)
+        Right (Text.pack word, Text.pack replacement)
       _otherwise -> Left "Expected CWORD=HSWORD with non-empty words"
-
--- | Select the case of underscore-separated name words.
-data NameCase = PreserveCase | PascalCase | CamelCase
 
 -- | Parse the case option for one name category.
 parseNameCase :: String -> Parser NameCase
@@ -288,27 +286,6 @@ parseNameCase flagName = option (eitherReader parseCase) $
       "pascal" -> Right PascalCase
       "camel" -> Right CamelCase
       _otherwise -> Left "Expected preserve, pascal, or camel"
-
--- | Convert name words and apply explicit word replacements.
-convertName :: NameCase -> [(Text, Text)] -> Text -> Text
-convertName PreserveCase _ = id
-convertName nameCase words' = \input ->
-    let (leading, body) = Text.span (== '_') input
-        converted = Text.concat $ map convertWord $ Text.splitOn "_" body
-    in leading <> case nameCase of
-         CamelCase -> modifyFirst Char.toLower converted
-         PascalCase -> converted
-  where
-    convertWord :: Text -> Text
-    convertWord word = case lookup (Text.toCaseFold word) words' of
-      Just replacement -> replacement
-      Nothing -> modifyFirst Char.toUpper $
-        if Text.all Char.isUpper word then Text.toLower word else word
-
-    modifyFirst :: (Char -> Char) -> Text -> Text
-    modifyFirst f text = case Text.uncons text of
-      Nothing -> text
-      Just (first, rest) -> Text.cons (f first) rest
 
 {-------------------------------------------------------------------------------
   Binding specifications

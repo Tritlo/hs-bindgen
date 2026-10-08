@@ -203,8 +203,7 @@ createNames ::
      forall l. (HasCallStack, Macro.HasTypes l)
   => TypedefAnalysis
   -> MangleCandidate Maybe
-  -> NamingModifiers
-  -> FieldNamingStrategy
+  -> NamingStrategy
   -> [C.Decl l ResolveBindingSpecs]
   -> ( [C.Decl l CreateNames]
      , [(C.DeclId, Hs.Name Hs.NsTypeConstr, TypedefAnalysis.Squash)]
@@ -213,7 +212,7 @@ createNames ::
      , [MangleNamesFailure]
      , [AnnMsg MangleNames]
      )
-createNames td mc modifiers strategy decls = (
+createNames td mc strategy decls = (
       map (snd . snd) successes
     , squashes
     , nameMap
@@ -232,8 +231,7 @@ createNames td mc modifiers strategy decls = (
     env :: CreateEnv
     env = CreateEnv{
         mangleCandidate     = mc
-      , fieldNamingStrategy = strategy
-      , namingModifiers     = modifiers
+      , namingStrategy      = strategy
       }
 
     results :: [CreateNamesResult ([ScopedNamePair], C.Decl l CreateNames)]
@@ -250,7 +248,7 @@ createNames td mc modifiers strategy decls = (
       where
         nameResult :: CreateNamesResult ()
         msgs       :: [AnnMsg MangleNames]
-        (nameResult, msgs) = nameForDecl td mc modifiers specifiedNames decl
+        (nameResult, msgs) = nameForDecl td mc strategy specifiedNames decl
 
     failures  :: [MangleNamesFailure]
     squashes  :: [(C.DeclId, Hs.Name Hs.NsTypeConstr, TypedefAnalysis.Squash)]
@@ -273,11 +271,11 @@ nameForDecl ::
      HasCallStack
   => TypedefAnalysis
   -> MangleCandidate Maybe
-  -> NamingModifiers
+  -> NamingStrategy
   -> Map C.DeclId (Hs.Name Hs.NsTypeConstr)
   -> C.Decl l ResolveBindingSpecs
   -> (CreateNamesResult (), [AnnMsg MangleNames])
-nameForDecl td mc modifiers specifiedNames decl =
+nameForDecl td mc strategy specifiedNames decl =
     second toMs $
     withDeclNamespace decl.kind $ \(nsProxy :: Proxy ns) ->
       let mangleNs :: Text -> Either MangleNamesCreationError (Hs.Name ns)
@@ -367,15 +365,15 @@ nameForDecl td mc modifiers specifiedNames decl =
     mangleType :: Text -> Either MangleNamesCreationError (Hs.Name Hs.NsTypeConstr)
     mangleType d =
       runExcept $
-        mangleCandidate mc (Proxy :: Proxy Hs.NsTypeConstr) (modifiers.typeNameModifier d)
+        mangleCandidate mc (Proxy :: Proxy Hs.NsTypeConstr) (applyNameTransform strategy.typeNames d)
 
     modifyDeclName :: Text -> Text
     modifyDeclName = case decl.kind of
-      C.DeclFunction{} -> modifiers.functionNameModifier
-      C.DeclUntaggedEnumConstant{} -> modifiers.enumConstantNameModifier
+      C.DeclFunction{} -> applyNameTransform strategy.functionNames
+      C.DeclUntaggedEnumConstant{} -> applyNameTransform strategy.enumConstantNames
       kind -> withDeclNamespace kind $ \(_proxy :: Proxy ns) ->
         case Hs.singNamespace @ns of
-          Hs.SNsTypeConstr -> modifiers.typeNameModifier
+          Hs.SNsTypeConstr -> applyNameTransform strategy.typeNames
           _otherwise -> id
 
 {-------------------------------------------------------------------------------
@@ -384,8 +382,7 @@ nameForDecl td mc modifiers specifiedNames decl =
 
 data CreateEnv = CreateEnv{
       mangleCandidate     :: MangleCandidate Maybe
-    , fieldNamingStrategy :: FieldNamingStrategy
-    , namingModifiers     :: NamingModifiers
+    , namingStrategy      :: NamingStrategy
     }
   deriving stock (Generic)
 
@@ -475,8 +472,8 @@ createDeclKind hsName = \case
 
 createStructNames :: Text -> CreateE StructNames
 createStructNames name = do
-    modifier <- asks (.namingModifiers.constructorNameModifier)
-    constr <- mkName (Proxy @Hs.NsConstr) (modifier name)
+    modifier <- asks (.namingStrategy.constructorNames)
+    constr <- mkName (Proxy @Hs.NsConstr) (applyNameTransform modifier name)
     pure StructNames{
         constr = constr
       }
@@ -497,9 +494,9 @@ createFlam hsName (C.Flam field _) = do
 -- | Generic construction of newtype names, given only the type name
 createNewtypeNames :: FieldNamingStrategy -> Text -> CreateE NewtypeNames
 createNewtypeNames strategy name = do
-    modifiers <- asks (.namingModifiers)
-    dataConstr <- mkName (Proxy @Hs.NsConstr) (modifiers.constructorNameModifier name)
-    field      <- mkName (Proxy @Hs.NsVar) $ modifiers.fieldNameModifier $ case strategy of
+    naming <- asks (.namingStrategy)
+    dataConstr <- mkName (Proxy @Hs.NsConstr) (applyNameTransform naming.constructorNames name)
+    field      <- mkName (Proxy @Hs.NsVar) $ applyNameTransform naming.fieldNames $ case strategy of
                     AddFieldPrefixes  -> "unwrap" <> name
                     OmitFieldPrefixes -> "unwrap"
     pure NewtypeNames{
@@ -533,13 +530,13 @@ createTypedefNames isFunPtr strategy name = do
 
 createFieldName :: Text -> C.ScopedName -> CreateE ScopedNamePair
 createFieldName hsName fieldCName = do
-    strategy <- asks (.fieldNamingStrategy)
-    modifier <- asks (.namingModifiers.fieldNameModifier)
+    strategy <- asks (.namingStrategy.fieldNamingStrategy)
+    modifier <- asks (.namingStrategy.fieldNames)
     let candidate :: Text
         candidate = case strategy of
           AddFieldPrefixes  -> hsName <> "_" <> fieldCName.text
           OmitFieldPrefixes -> fieldCName.text
-    name <- mkName (Proxy @Hs.NsVar) (modifier candidate)
+    name <- mkName (Proxy @Hs.NsVar) (applyNameTransform modifier candidate)
     let scopedNamePair = ScopedNamePair{
         cName  = fieldCName
       , hsName = Hs.demoteNs name
@@ -553,8 +550,8 @@ createFieldName hsName fieldCName = do
 -- enclosing enum.
 createEnumConstantName :: C.ScopedName -> CreateE ScopedNamePair
 createEnumConstantName cName = do
-    modifier <- asks (.namingModifiers.enumConstantNameModifier)
-    name <- mkName (Proxy @Hs.NsConstr) (modifier cName.text)
+    modifier <- asks (.namingStrategy.enumConstantNames)
+    name <- mkName (Proxy @Hs.NsConstr) (applyNameTransform modifier cName.text)
     let scopedNamePair = ScopedNamePair{
         cName  = cName
       , hsName = Hs.demoteNs name
@@ -598,7 +595,7 @@ createStruct hsName struct = do
 createUnion ::
      Text -> C.Union ResolveBindingSpecs -> CreateE (C.Union CreateNames)
 createUnion hsName union = do
-    strategy <- asks (.fieldNamingStrategy)
+    strategy <- asks (.namingStrategy.fieldNamingStrategy)
     names    <- createNewtypeNames strategy hsName
     fields   <- mapM (createField hsName) union.fields
     pure C.Union{
@@ -681,7 +678,7 @@ createIndirectField hsName field = do
 
 createEnum :: Text -> C.Enum ResolveBindingSpecs -> CreateE (C.Enum CreateNames)
 createEnum hsName enum = do
-    strategy  <- asks (.fieldNamingStrategy)
+    strategy  <- asks (.namingStrategy.fieldNamingStrategy)
     names     <- createNewtypeNames strategy hsName
     constants <- mapM createEnumConstant enum.constants
     pure C.Enum{
@@ -719,7 +716,7 @@ createUntaggedEnumConstant (C.UntaggedEnumConstant primTyp constant) = do
 createTypedef ::
      Text -> C.Typedef ResolveBindingSpecs -> CreateE (C.Typedef CreateNames)
 createTypedef hsName typedef = do
-    strategy <- asks (.fieldNamingStrategy)
+    strategy <- asks (.namingStrategy.fieldNamingStrategy)
     names    <- createTypedefNames isFunPtr strategy hsName
     pure C.Typedef{
         typ = coercePass typedef.typ
@@ -778,7 +775,7 @@ createMacroType ::
   -> TypecheckedMacroType l ResolveBindingSpecs
   -> CreateE (TypecheckedMacroType l CreateNames)
 createMacroType hsName macroType = do
-    strategy <- asks (.fieldNamingStrategy)
+    strategy <- asks (.namingStrategy.fieldNamingStrategy)
     names    <- createNewtypeNames strategy hsName
     pure TypecheckedMacroType{
         body = fmap coercePass macroType.body

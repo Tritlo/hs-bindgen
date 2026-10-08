@@ -7,13 +7,50 @@ primary goal of the _default_ name mangler is to stick as close as possible to
 the names as they are in the C code. This makes it easier to guess what the
 Haskell name will be, and also is less likely to result in name clashes.
 
-> [!NOTE]
-> Many aspects of naming are configurable by providing an alternative
-> implementation of the `NameMangler`. Currently this requires using
-> `hs-bindgen` as a library; providing a syntax for modifying some aspects of
-> name mangling through the CLI is future work. Here we discuss the defaults.
-> The two aspects of name generation are captured by two separate abstractions
-> in the library: `ProduceCandidate` and `MangleCandidate`.
+## Configuring names
+
+`NamingModifiers` provides public functions for type, function, constructor,
+field, and enum constant names. Import it from `HsBindgen.Naming` or
+`HsBindgen.TH`. Each modifier has type `Text -> Text`. All defaults are `id`.
+Set `namingModifiers` in the generation configuration. For example:
+
+```haskell
+cfg = def {
+    namingModifiers = def {
+        functionNameModifier = ("c_" <>)
+      }
+  }
+```
+
+This modifier changes the Haskell name `duckdb_open` to `c_duckdb_open`.
+It does not change the C symbol. It requires `OverloadedStrings`.
+
+Type, function, and enum modifiers receive C name candidates. Constructor
+modifiers receive the generated Haskell type name. Field modifiers receive the
+candidate after `fieldNamingStrategy` applies its prefix rule. Auxiliary type
+names use the transformed parent type name. Explicit type names in prescriptive
+binding specifications take precedence over `typeNameModifier`.
+
+Modifiers run before identifier validation and collision detection. The existing
+rules repair invalid candidates. A collision can exclude a declaration. Name
+changes also apply to references in signatures and generated instances.
+
+The CLI provides a subset of these transformations:
+
+| Option | Transformation |
+| --- | --- |
+| `--function-name-prefix TEXT` | Add a function prefix |
+| `--constructor-name-prefix TEXT` | Add a constructor prefix |
+| `--type-name-case preserve\|pascal\|camel` | Convert type name words |
+| `--field-name-case preserve\|pascal\|camel` | Convert field name words |
+| `--enum-name-case preserve\|pascal\|camel` | Convert enum name words |
+| `--name-word CWORD=HSWORD` | Replace a word during case conversion |
+
+Case conversion splits names at underscores. It retains leading underscores
+and removes underscores between words. Word replacement matches C words without
+case distinctions. For example, `--type-name-case pascal --name-word duckdb=DuckDB`
+changes `duckdb_connection` to `DuckDBConnection`. `preserve` applies no word
+replacements. Use the public Haskell API for other transformations.
 
 ## Name candidates
 

@@ -1,0 +1,290 @@
+-- addDependentFile test-artefacts/headers/golden/edge-cases/naming_modifiers.h
+-- #include <edge-cases/naming_modifiers.h>
+-- void hs_bindgen_7958da8cafef0f41 (
+--   widget_state arg1,
+--   widget_callback arg2,
+--   widget *arg3
+-- )
+-- {
+--   *arg3 = (widget_create)(arg1, arg2);
+-- }
+-- void hs_bindgen_4ce1977df8bd0ad4 (
+--   widget_state arg1,
+--   widget_callback arg2,
+--   widget *arg3
+-- )
+-- {
+--   *arg3 = (widget_create)(arg1, arg2);
+-- }
+-- /* test_edgecasesnaming_modifiers_Example_get_widget_create */
+-- __attribute__ ((const))
+-- widget (*hs_bindgen_5aa2405afc3f9fa8 (void)) (
+--   widget_state arg1,
+--   widget_callback arg2
+-- )
+-- {
+--   return &widget_create;
+-- }
+{-| __C declaration:__ @struct widget@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 1:9@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+data Named_widget
+    = Mk_Named_widget {field_Named_widget_count :: CInt
+                       {- ^ __C declaration:__ @count@
+
+                            __defined at:__ @edge-cases\/naming_modifiers.h 2:7@
+
+                            __exported by:__ @edge-cases\/naming_modifiers.h@
+                       -}}
+    deriving stock (Eq, Generic, Show)
+instance StaticSize Named_widget
+    where staticSizeOf = \_ -> 4 :: Int
+          staticAlignment = \_ -> 4 :: Int
+instance ReadRaw Named_widget
+    where readRaw = \ptr_0 -> pure Mk_Named_widget <*> readRaw (Proxy @"field_Named_widget_count") ptr_0
+instance WriteRaw Named_widget
+    where writeRaw = \ptr_0 -> \s_1 -> case s_1 of
+                                       Mk_Named_widget field_Named_widget_count_2 -> writeRaw (Proxy @"field_Named_widget_count") ptr_0 field_Named_widget_count_2
+deriving via (EquivStorable Named_widget) instance Storable Named_widget
+deriving via (IsStructViaReadRaw Named_widget) instance IsStruct Named_widget
+instance (~) ty CInt =>
+         HasField "field_Named_widget_count" Named_widget ty
+    where hasField = \x_0 -> (\y_1 -> Mk_Named_widget{field_Named_widget_count = y_1},
+                              getField @"field_Named_widget_count" x_0)
+instance (~) ty CInt =>
+         HasField "field_Named_widget_count" (Ptr Named_widget) (Ptr ty)
+    where getField = fromPtr (Proxy @"field_Named_widget_count")
+instance HasCField Named_widget "field_Named_widget_count"
+    where type CFieldType Named_widget
+                          "field_Named_widget_count" = CInt
+          offset# = \_ -> \_ -> 0
+{-| __C declaration:__ @enum widget_state@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 5:9@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+newtype Named_widget_state
+    = Mk_Named_widget_state {field_unwrapNamed_widget_state :: CUInt}
+    deriving stock (Eq, Generic, Ord)
+    deriving newtype HasFFIType
+instance StaticSize Named_widget_state
+    where staticSizeOf = \_ -> 4 :: Int
+          staticAlignment = \_ -> 4 :: Int
+instance ReadRaw Named_widget_state
+    where readRaw = \ptr_0 -> pure Mk_Named_widget_state <*> readRawByteOff ptr_0 (0 :: Int)
+instance WriteRaw Named_widget_state
+    where writeRaw = \ptr_0 -> \s_1 -> case s_1 of
+                                       Mk_Named_widget_state field_unwrapNamed_widget_state_2 -> writeRawByteOff ptr_0 (0 :: Int) field_unwrapNamed_widget_state_2
+deriving via (EquivStorable Named_widget_state) instance Storable Named_widget_state
+deriving via CUInt instance Prim Named_widget_state
+instance CEnum Named_widget_state
+    where type CEnumZ Named_widget_state = CUInt
+          toCEnum = Mk_Named_widget_state
+          fromCEnum = getField @"field_unwrapNamed_widget_state"
+          declaredValues = \_ -> declaredValuesFromList [(0,
+                                                          singleton "Value_WIDGET_READY"),
+                                                         (1, singleton "Value_WIDGET_DONE")]
+          showsUndeclared = showsWrappedUndeclared "Mk_Named_widget_state"
+          readPrecUndeclared = readPrecWrappedUndeclared "Mk_Named_widget_state"
+          isDeclared = seqIsDeclared
+          mkDeclared = seqMkDeclared
+instance SequentialCEnum Named_widget_state
+    where minDeclaredValue = Value_WIDGET_READY
+          maxDeclaredValue = Value_WIDGET_DONE
+instance Show Named_widget_state
+    where showsPrec = shows
+instance Read Named_widget_state
+    where readPrec = readPrec
+          readList = readListDefault
+          readListPrec = readListPrecDefault
+instance (~) ty CUInt =>
+         HasField "field_unwrapNamed_widget_state" Named_widget_state ty
+    where hasField = \x_0 -> (\y_1 -> Mk_Named_widget_state{field_unwrapNamed_widget_state = y_1},
+                              getField @"field_unwrapNamed_widget_state" x_0)
+instance (~) ty CUInt =>
+         HasField "field_unwrapNamed_widget_state"
+                  (Ptr Named_widget_state)
+                  (Ptr ty)
+    where getField = fromPtr (Proxy @"field_unwrapNamed_widget_state")
+instance HasCField Named_widget_state
+                   "field_unwrapNamed_widget_state"
+    where type CFieldType Named_widget_state
+                          "field_unwrapNamed_widget_state" = CUInt
+          offset# = \_ -> \_ -> 0
+{-| __C declaration:__ @WIDGET_READY@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 6:3@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+pattern Value_WIDGET_READY :: Named_widget_state
+pattern Value_WIDGET_READY = Mk_Named_widget_state 0
+{-| __C declaration:__ @WIDGET_DONE@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 7:3@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+pattern Value_WIDGET_DONE :: Named_widget_state
+pattern Value_WIDGET_DONE = Mk_Named_widget_state 1
+{-| Auxiliary type used by 'Named_widget_callback'
+
+    __C declaration:__ @widget_callback@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 10:16@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+newtype Named_widget_callback_Aux
+    = Mk_Named_widget_callback_Aux {field_unwrapNamed_widget_callback_Aux :: (Ptr Named_widget ->
+                                                                              IO ())}
+    deriving stock Generic
+-- __unique:__ @toNamed_widget_callback_Aux@
+foreign import ccall safe "wrapper" hs_bindgen_ca4eda5fd77cd3a9_base ::
+    Ptr Void -> IO ()
+ -> IO (FunPtr (Ptr Void -> IO ()))
+-- __unique:__ @toNamed_widget_callback_Aux@
+hs_bindgen_ca4eda5fd77cd3a9 :: Named_widget_callback_Aux ->
+                               IO (FunPtr Named_widget_callback_Aux)
+-- __unique:__ @toNamed_widget_callback_Aux@
+hs_bindgen_ca4eda5fd77cd3a9 = \fun_0 -> fmap castFunPtr (hs_bindgen_ca4eda5fd77cd3a9_base (\x_1 -> getField @"field_unwrapNamed_widget_callback_Aux" fun_0 (fromFFIType x_1)))
+-- __unique:__ @fromNamed_widget_callback_Aux@
+foreign import ccall safe "dynamic" hs_bindgen_08530a3c22de1ce7_base ::
+    FunPtr (Ptr Void -> IO ())
+ -> Ptr Void
+ -> IO ()
+-- __unique:__ @fromNamed_widget_callback_Aux@
+hs_bindgen_08530a3c22de1ce7 :: FunPtr Named_widget_callback_Aux ->
+                               Named_widget_callback_Aux
+-- __unique:__ @fromNamed_widget_callback_Aux@
+hs_bindgen_08530a3c22de1ce7 = \funPtr_0 -> Mk_Named_widget_callback_Aux (\x_1 -> hs_bindgen_08530a3c22de1ce7_base (castFunPtr funPtr_0) (toFFIType x_1))
+instance ToFunPtr Named_widget_callback_Aux
+    where toFunPtr = hs_bindgen_ca4eda5fd77cd3a9
+instance FromFunPtr Named_widget_callback_Aux
+    where fromFunPtr = hs_bindgen_08530a3c22de1ce7
+instance (~) ty (Ptr Named_widget -> IO ()) =>
+         HasField "field_unwrapNamed_widget_callback_Aux"
+                  Named_widget_callback_Aux
+                  ty
+    where hasField = \x_0 -> (\y_1 -> Mk_Named_widget_callback_Aux{field_unwrapNamed_widget_callback_Aux = y_1},
+                              getField @"field_unwrapNamed_widget_callback_Aux" x_0)
+instance (~) ty (Ptr Named_widget -> IO ()) =>
+         HasField "field_unwrapNamed_widget_callback_Aux"
+                  (Ptr Named_widget_callback_Aux)
+                  (Ptr ty)
+    where getField = fromPtr (Proxy @"field_unwrapNamed_widget_callback_Aux")
+instance HasCField Named_widget_callback_Aux
+                   "field_unwrapNamed_widget_callback_Aux"
+    where type CFieldType Named_widget_callback_Aux
+                          "field_unwrapNamed_widget_callback_Aux" = Ptr Named_widget -> IO ()
+          offset# = \_ -> \_ -> 0
+{-| __C declaration:__ @widget_callback@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 10:16@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+newtype Named_widget_callback
+    = Mk_Named_widget_callback {field_unwrapNamed_widget_callback :: (FunPtr Named_widget_callback_Aux)}
+    deriving stock (Eq, Generic, Ord, Show)
+    deriving newtype (HasFFIType,
+                      ReadRaw,
+                      StaticSize,
+                      Storable,
+                      WriteRaw)
+instance (~) ty (FunPtr Named_widget_callback_Aux) =>
+         HasField "field_unwrapNamed_widget_callback"
+                  Named_widget_callback
+                  ty
+    where hasField = \x_0 -> (\y_1 -> Mk_Named_widget_callback{field_unwrapNamed_widget_callback = y_1},
+                              getField @"field_unwrapNamed_widget_callback" x_0)
+instance (~) ty (FunPtr Named_widget_callback_Aux) =>
+         HasField "field_unwrapNamed_widget_callback"
+                  (Ptr Named_widget_callback)
+                  (Ptr ty)
+    where getField = fromPtr (Proxy @"field_unwrapNamed_widget_callback")
+instance HasCField Named_widget_callback
+                   "field_unwrapNamed_widget_callback"
+    where type CFieldType Named_widget_callback
+                          "field_unwrapNamed_widget_callback" = FunPtr Named_widget_callback_Aux
+          offset# = \_ -> \_ -> 0
+-- __unique:__ @test_edgecasesnaming_modifiers_Example_Safe_widget_create@
+foreign import ccall safe "hs_bindgen_7958da8cafef0f41" hs_bindgen_7958da8cafef0f41_base ::
+    CUInt
+ -> FunPtr Void
+ -> Ptr Void
+ -> IO ()
+-- __unique:__ @test_edgecasesnaming_modifiers_Example_Safe_widget_create@
+hs_bindgen_7958da8cafef0f41 :: Named_widget_state ->
+                               Named_widget_callback -> Ptr Named_widget -> IO ()
+-- __unique:__ @test_edgecasesnaming_modifiers_Example_Safe_widget_create@
+hs_bindgen_7958da8cafef0f41 = \x_0 -> \x_1 -> \x_2 -> hs_bindgen_7958da8cafef0f41_base (toFFIType x_0) (toFFIType x_1) (toFFIType x_2)
+{-| __C declaration:__ @widget_create@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 11:8@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+ffi_widget_create_safe :: Named_widget_state ->
+                          Named_widget_callback -> IO Named_widget
+{-| __C declaration:__ @widget_create@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 11:8@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+ffi_widget_create_safe = \state_0 -> \callback_1 -> allocaAndPeek (\res_2 -> hs_bindgen_7958da8cafef0f41 state_0 callback_1 res_2)
+-- __unique:__ @test_edgecasesnaming_modifiers_Example_Unsafe_widget_create@
+foreign import ccall unsafe "hs_bindgen_4ce1977df8bd0ad4" hs_bindgen_4ce1977df8bd0ad4_base ::
+    CUInt
+ -> FunPtr Void
+ -> Ptr Void
+ -> IO ()
+-- __unique:__ @test_edgecasesnaming_modifiers_Example_Unsafe_widget_create@
+hs_bindgen_4ce1977df8bd0ad4 :: Named_widget_state ->
+                               Named_widget_callback -> Ptr Named_widget -> IO ()
+-- __unique:__ @test_edgecasesnaming_modifiers_Example_Unsafe_widget_create@
+hs_bindgen_4ce1977df8bd0ad4 = \x_0 -> \x_1 -> \x_2 -> hs_bindgen_4ce1977df8bd0ad4_base (toFFIType x_0) (toFFIType x_1) (toFFIType x_2)
+{-| __C declaration:__ @widget_create@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 11:8@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+ffi_widget_create_unsafe :: Named_widget_state ->
+                            Named_widget_callback -> IO Named_widget
+{-| __C declaration:__ @widget_create@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 11:8@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+ffi_widget_create_unsafe = \state_0 -> \callback_1 -> allocaAndPeek (\res_2 -> hs_bindgen_4ce1977df8bd0ad4 state_0 callback_1 res_2)
+-- __unique:__ @test_edgecasesnaming_modifiers_Example_get_widget_create@
+foreign import ccall unsafe "hs_bindgen_5aa2405afc3f9fa8" hs_bindgen_5aa2405afc3f9fa8_base ::
+    IO (FunPtr Void)
+-- __unique:__ @test_edgecasesnaming_modifiers_Example_get_widget_create@
+hs_bindgen_5aa2405afc3f9fa8 :: IO (FunPtr (Named_widget_state ->
+                                           Named_widget_callback -> IO Named_widget))
+-- __unique:__ @test_edgecasesnaming_modifiers_Example_get_widget_create@
+hs_bindgen_5aa2405afc3f9fa8 = fmap fromFFIType hs_bindgen_5aa2405afc3f9fa8_base
+{-# NOINLINE ffi_widget_create_funptr #-}
+{-| __C declaration:__ @widget_create@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 11:8@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+ffi_widget_create_funptr :: FunPtr (Named_widget_state ->
+                                    Named_widget_callback -> IO Named_widget)
+{-| __C declaration:__ @widget_create@
+
+    __defined at:__ @edge-cases\/naming_modifiers.h 11:8@
+
+    __exported by:__ @edge-cases\/naming_modifiers.h@
+-}
+ffi_widget_create_funptr = unsafePerformIO hs_bindgen_5aa2405afc3f9fa8

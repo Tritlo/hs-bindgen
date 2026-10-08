@@ -1,0 +1,91 @@
+version:
+  hs_bindgen: 1.0.0.0
+  binding_specification: '1.0'
+hsmodule: Example
+ctypes:
+- headers: edge-cases/naming_modifiers.h
+  cname: struct widget
+  hsname: Named_widget
+- headers: edge-cases/naming_modifiers.h
+  cname: widget
+  hsname: Named_widget
+- headers: edge-cases/naming_modifiers.h
+  cname: enum widget_state
+  hsname: Named_widget_state
+  enum: open
+- headers: edge-cases/naming_modifiers.h
+  cname: widget_state
+  hsname: Named_widget_state
+- headers: edge-cases/naming_modifiers.h
+  cname: widget_callback
+  hsname: Named_widget_callback
+hstypes:
+- hsname: Named_widget
+  representation:
+    record:
+      constructor: Mk_Named_widget
+      fields:
+      - field_Named_widget_count
+  instances:
+  - Eq
+  - Generic
+  - HasCField
+  - HasField
+  - HasFieldCompat
+  - HasFieldPtr
+  - IsStruct
+  - ReadRaw
+  - Show
+  - StaticSize
+  - Storable
+  - WriteRaw
+- hsname: Named_widget_callback
+  representation:
+    newtype:
+      constructor: Mk_Named_widget_callback
+      fields:
+      - field_unwrapNamed_widget_callback
+      ffitype:
+        hsmodule: HsBindgen.Runtime.Support
+        hsname: FunPtrVoid
+  instances:
+  - Eq
+  - Generic
+  - HasCField
+  - HasFFIType
+  - HasField
+  - HasFieldCompat
+  - HasFieldPtr
+  - Ord
+  - ReadRaw
+  - Show
+  - StaticSize
+  - Storable
+  - WriteRaw
+- hsname: Named_widget_state
+  representation:
+    newtype:
+      constructor: Mk_Named_widget_state
+      fields:
+      - field_unwrapNamed_widget_state
+      ffitype:
+        hsmodule: HsBindgen.Runtime.Support
+        hsname: CUInt
+  instances:
+  - CEnum
+  - Eq
+  - Generic
+  - HasCField
+  - HasFFIType
+  - HasField
+  - HasFieldCompat
+  - HasFieldPtr
+  - Ord
+  - Prim
+  - Read
+  - ReadRaw
+  - SequentialCEnum
+  - Show
+  - StaticSize
+  - Storable
+  - WriteRaw

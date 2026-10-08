@@ -3,6 +3,7 @@ module Test.HsBindgen.Golden.EdgeCases (testCases) where
 
 import HsBindgen.Config.ClangArgs
 import HsBindgen.Config.Internal
+import HsBindgen.Config.Naming
 import HsBindgen.Frontend.Analysis.DeclIndex (UnusableEntry (..),
                                               UnusableReason (..))
 import HsBindgen.Frontend.Pass.Select.IsPass
@@ -45,6 +46,7 @@ testCases = [
     , test_headers
     , test_include_macro
     , test_iterator
+    , test_naming_modifiers
     , test_ordinary_unnamed_decl
     , test_select_no_match
     , test_thread_local
@@ -59,6 +61,19 @@ test_adios :: TestCase
 test_adios =
     defaultTest "edge-cases/adios"
       & #cStandard .~ c11
+
+test_naming_modifiers :: TestCase
+test_naming_modifiers =
+    defaultTest "edge-cases/naming_modifiers"
+      & #onFrontend .~ (\cfg -> cfg
+          & #namingModifiers .~ NamingModifiers {
+              typeNameModifier = ("Named_" <>)
+            , functionNameModifier = ("ffi_" <>)
+            , constructorNameModifier = ("Mk_" <>)
+            , fieldNameModifier = ("field_" <>)
+            , enumConstantNameModifier = ("Value_" <>)
+            }
+          )
 
 test_clang_generated_collision :: TestCase
 test_clang_generated_collision =
